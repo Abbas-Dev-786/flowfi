@@ -6,8 +6,8 @@ import { CadenceGenerator } from "./../cadence/generator";
 import { WorkflowDefinition } from "@/types/workflow.types";
 
 fcl.config({
-  "app.detail.title": "FlowSync",
-  "app.detail.icon": "https://flowsync.app/logo.png",
+  "app.detail.title": "FlowGPT",
+  "app.detail.icon": "https://flowgpt.app/logo.png",
   "accessNode.api": "https://rest-testnet.onflow.org",
   "discovery.wallet": "https://fcl-discovery.onflow.org/testnet/authn",
   "0xFungibleToken": "0x9a0766d93b6608b7",
@@ -15,7 +15,15 @@ fcl.config({
   "0xNonFungibleToken": "0x631e88ae7f1d7c20",
   "0xMetadataViews": "0x631e88ae7f1d7c20",
   "flow.network": "testnet",
-  "0xWorkflowRegistry": process.env.NEXT_PUBLIC_WORKFLOW_REGISTRY_ADDRESS,
+  "0xWorkflowRegistry":
+    process.env.NEXT_PUBLIC_WORKFLOW_REGISTRY_ADDRESS || "0x123",
+  "0xRecurringPayment":
+    process.env.NEXT_PUBLIC_RECURRING_PAYMENT_ADDRESS || "0x124",
+  "0xTokenSwap": process.env.NEXT_PUBLIC_TOKEN_SWAP_ADDRESS || "0x125",
+  "0xBatchTransfer": process.env.NEXT_PUBLIC_BATCH_TRANSFER_ADDRESS || "0x126",
+  "0xStakingClaim": process.env.NEXT_PUBLIC_STAKING_CLAIM_ADDRESS || "0x127",
+  "0xGovernanceVote":
+    process.env.NEXT_PUBLIC_GOVERNANCE_VOTE_ADDRESS || "0x128",
 });
 
 export class FlowWorkflowManager {
@@ -181,25 +189,45 @@ import WorkflowRegistry from 0xWorkflowRegistry
 transaction(
   workflowId: String,
   creator: Address,
-  workflowType: String
+  workflowType: String,
+  actionContract: String,
+  metadata: {String: String}
 ) {
   prepare(signer: &Account) {
-    // Directly call the public function on the contract
+    // Register workflow with metadata
     WorkflowRegistry.registerWorkflow(
       id: workflowId,
       creator: creator,
-      workflowType: workflowType
+      workflowType: workflowType,
+      actionContract: actionContract,
+      metadata: metadata
     )
   }
 }`;
 
     try {
+      // Determine action contract based on workflow type
+      const actionContract = this.getActionContractForType(workflow.type);
+
+      // Create metadata dictionary from workflow properties
+      const metadata: Record<string, string> = {
+        creator: workflow.creator,
+        createdAt: workflow.createdAt.toString(),
+      };
+
+      if (workflow.action.token) metadata.tokenType = workflow.action.token;
+      if (workflow.action.amount) metadata.amount = workflow.action.amount;
+      if (workflow.action.recipient)
+        metadata.recipient = workflow.action.recipient;
+
       const txId = await fcl.mutate({
         cadence: registerCadence,
         args: (arg, t) => [
           arg(workflow.id, t.String),
           arg(workflow.creator, t.Address),
           arg(workflow.type, t.String),
+          arg(actionContract, t.String),
+          arg(metadata, t.Dictionary({ key: t.String, value: t.String })),
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -220,6 +248,21 @@ transaction(
       }
       throw new Error("Failed to register workflow");
     }
+  }
+
+  /**
+   * Get action contract address for workflow type
+   */
+  private static getActionContractForType(type: string): string {
+    const mapping: Record<string, string> = {
+      RECURRING_PAYMENT: "RecurringPayment",
+      SCHEDULED_TRANSFER: "RecurringPayment",
+      TOKEN_SWAP: "TokenSwap",
+      BATCH_TRANSFER: "BatchTransfer",
+      STAKING_CLAIM: "StakingClaim",
+      GOVERNANCE_VOTE: "GovernanceVote",
+    };
+    return mapping[type] || "RecurringPayment";
   }
 
   /**

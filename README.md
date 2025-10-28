@@ -1,260 +1,396 @@
-# Flow React SDK Starter
+# FlowGPT 🚀
 
-A minimal Next.js starter template for building Flow blockchain applications using `@onflow/react-sdk`. This starter includes interactive tutorials and examples to help you get started quickly.
+**The ChatGPT for Flow blockchain** - A conversational AI assistant that automates crypto workflows through natural dialogue, powered by Flow's new Forte primitives.
 
-## Features
+![FlowGPT](https://img.shields.io/badge/FlowGPT-AI%20Blockchain%20Assistant-purple)
+![Flow Forte](https://img.shields.io/badge/Flow-Forte-orange)
+![Next.js](https://img.shields.io/badge/Next.js-15-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 
-- **Next.js** with App Router and Turbopack
-- **Flow React SDK** `@onflow/react-sdk` pre-configured
-- **FlowProvider** wrapper with Testnet configuration
-- **Interactive tutorials** with working examples:
-  - Wallet connection with official Connect component
-  - Testnet faucet integration
-  - Balance checking with `useFlowQuery`
-  - Token transfers with `useFlowMutate`
-- **Network indicator** showing current Flow network (Testnet/Mainnet/Emulator)
-- **Responsive design** optimized for mobile, tablet, and desktop
+---
 
-## Getting Started
+## 🎯 What is FlowGPT?
+
+FlowGPT is like having a personal blockchain assistant. Instead of writing smart contracts or filling forms, you **talk to an AI** that:
+
+- Understands your goals through natural conversation
+- Asks clarifying questions
+- Reads your wallet context
+- Suggests optimizations and warns about risks
+- Generates and deploys automated workflows
+
+**No coding required. Just talk to your blockchain.** 💬
+
+---
+
+## ✨ Key Features
+
+### 💬 Conversational Interface
+
+Chat naturally with your blockchain assistant:
+
+```
+You: "I want to pay my team every Friday"
+FlowGPT: "How many team members do you have?"
+You: "Three - Alice gets 100 FLOW, Bob gets 75, Charlie gets 50"
+FlowGPT: "Perfect! Should I set this up as a recurring workflow?"
+You: "Yes"
+[FlowGPT deploys automated weekly payroll]
+```
+
+### 🧠 Context-Aware Intelligence
+
+- Reads your wallet balance in real-time
+- Analyzes existing workflows
+- Provides personalized suggestions
+- Warns about insufficient funds or risks
+
+### 🎤 Multi-Modal Input
+
+- 💬 Type messages (like ChatGPT)
+- 🎙️ Voice input for hands-free operation
+- Seamless switching between modes
+
+### ⚡ Powered by Flow Forte
+
+- **FLIP-338 Actions**: Reusable onchain building blocks
+- **Scheduled Transactions**: Native time-based execution
+- No external servers or keepers needed
+
+---
+
+## 🏆 Use Cases
+
+| Use Case          | User Says                               | FlowGPT Does                 |
+| ----------------- | --------------------------------------- | ---------------------------- |
+| **Payroll**       | "Pay my team every 2 weeks"             | Schedules recurring payments |
+| **DCA Strategy**  | "Buy $100 of token X weekly"            | Automated token purchases    |
+| **Reward Claims** | "Claim my staking rewards monthly"      | Auto-claims and compounds    |
+| **NFT Drops**     | "Send 100 NFTs to whitelist on Dec 1st" | Scheduled batch distribution |
+| **Governance**    | "Vote YES on proposal #42 in 24 hours"  | Delayed governance voting    |
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+- **Next.js 15** (React 19 + TypeScript)
+- **Groq API** (Llama 3 for AI)
+- **FCL** for wallet integration
+- **Web Speech API** for voice input
+- **Shadcn UI** for beautiful components
+
+### Smart Contracts (Cadence)
+
+- **WorkflowRegistry.cdc**: Core workflow management
+- **5 Action Contracts**: RecurringPayment, TokenSwap, BatchTransfer, StakingClaim, GovernanceVote
+- FLIP-338 compliant actions
+- Scheduled Transactions for automation
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- npm, yarn, or pnpm
+- Flow wallet (for testing)
 
 ### Installation
 
 ```bash
+# Install dependencies
 npm install
-# or
-yarn install
-# or
-pnpm install
-```
 
-### Development
+# Set up environment variables
+cp .env.example .env
+# Add your GROQ_API_KEY
 
-```bash
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Build
+### Connect Your Wallet
 
-```bash
-npm run build
+1. Click "Connect Wallet"
+2. Choose a wallet (e.g., Flow Wallet, Blocto)
+3. Approve connection
+
+### Start Chatting
+
+Simply type your automation request:
+
+```
+"I want to pay my team 100 FLOW every Friday"
 ```
 
-## Project Structure
+FlowGPT will guide you through the rest!
+
+---
+
+## 📁 Project Structure
 
 ```
-src/
-├── app/
-│   ├── layout.tsx                  # Root layout with FlowProvider
-│   ├── page.tsx                    # Main landing page (Server Component)
-│   └── globals.css                 # Global styles
-└── components/
-    ├── flow-provider-wrapper.tsx   # FlowProvider configuration
-    ├── flow-header.tsx             # Header with Connect component & network indicator
-    ├── flow-content.tsx            # Main content component (Client Component)
-    └── tutorial/
-        ├── wallet-connect.tsx      # Step 1: Wallet connection tutorial
-        ├── faucet-funding.tsx      # Step 2: Testnet faucet integration
-        ├── flow-balance.tsx        # Step 3: Balance query example (useFlowQuery)
-        └── send-flow.tsx           # Step 4: Token transfer example (useFlowMutate)
+flow/
+├── cadence/
+│   ├── contracts/
+│   │   ├── WorkflowRegistry.cdc      # Main registry
+│   │   ├── RecurringPayment.cdc      # Payment actions
+│   │   ├── TokenSwap.cdc             # Swap actions
+│   │   ├── BatchTransfer.cdc         # Batch actions
+│   │   ├── StakingClaim.cdc          # Staking actions
+│   │   └── GovernanceVote.cdc       # Governance actions
+│   ├── transactions/
+│   │   ├── schedule-mint.cdc
+│   │   ├── schedule-transfer.cdc
+│   │   └── cancel-workflow.cdc
+│   └── scripts/
+│       └── GetCounter.cdc
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── chat/
+│   │   │       └── route.ts          # AI chat endpoint
+│   │   ├── page.tsx                  # Main page
+│   │   └── layout.tsx
+│   ├── components/
+│   │   ├── custom/
+│   │   │   ├── chat-interface.tsx    # ChatGPT-style UI
+│   │   │   ├── workflow-card.tsx
+│   │   │   ├── workflow-input.tsx
+│   │   │   └── workflow-preview.tsx
+│   │   └── ui/                       # Shadcn components
+│   └── lib/
+│       ├── groq/
+│       │   └── client.ts              # Groq AI integration
+│       ├── flow/
+│       │   ├── workflow.ts            # Workflow management
+│       │   └── config.ts
+│       └── cadence/
+│           └── generator.ts           # Cadence code generation
+└── package.json
 ```
 
-## FlowProvider Configuration
+---
 
-The `FlowProvider` is configured in `src/components/flow-provider-wrapper.tsx` with **Flow Testnet** by default.
+## 🧠 How It Works
 
-To switch networks, update the config:
+### 1. **User Chat**
 
-**Mainnet:**
+User describes their automation goal in natural language.
 
-```typescript
-accessNodeUrl: "https://rest-mainnet.onflow.org",
-discoveryWallet: "https://fcl-discovery.onflow.org/mainnet/authn",
-flowNetwork: "mainnet",
+### 2. **AI Processing**
+
+Groq AI (Llama 3) analyzes the request and asks clarifying questions if needed.
+
+### 3. **Workflow Generation**
+
+AI generates structured workflow with:
+
+- Trigger configuration (time, event, condition)
+- Action parameters (amounts, recipients, schedules)
+- Contract selection (RecurringPayment, TokenSwap, etc.)
+
+### 4. **Validation**
+
+System checks:
+
+- User has sufficient balance
+- Recipient addresses are valid
+- Schedule is feasible
+
+### 5. **Deployment**
+
+Workflow is deployed to Flow blockchain as:
+
+- Scheduled transaction (time-based)
+- Event listener (event-based)
+- Conditional monitor (condition-based)
+
+### 6. **Execution**
+
+Flow blockchain automatically executes workflows on schedule.
+
+---
+
+## 🎨 UI Components
+
+FlowGPT uses **Shadcn UI** for beautiful, accessible components:
+
+- `Button` - Styled buttons
+- `Card` - Container for content
+- `Textarea` - Multi-line input
+- `Badge` - Status indicators
+- `Dropdown Menu` - Navigation menus
+
+All components are fully typed with TypeScript and customizable.
+
+---
+
+## 🔧 Smart Contracts
+
+### WorkflowRegistry.cdc
+
+Main registry that tracks all workflows:
+
+- Stores workflow metadata
+- Manages execution status
+- Records execution history
+- Provides query interface
+
+### Action Contracts (FLIP-338)
+
+Each workflow type has its own action contract:
+
+1. **RecurringPayment**: Scheduled token transfers
+2. **TokenSwap**: DCA token purchasing
+3. **BatchTransfer**: Batch payments/airdrops
+4. **StakingClaim**: Reward claiming and compounding
+5. **GovernanceVote**: Delayed governance voting
+
+---
+
+## 🌊 Flow Forte Integration
+
+FlowGPT leverages Flow's new Forte features:
+
+### Scheduled Transactions
+
+Native time-based execution without external keepers.
+
+```cadence
+transaction(id: String, amount: UFix64, recipient: Address, interval: UInt64) {
+  prepare(signer: AuthAccount) {
+    // Scheduled transaction logic
+  }
+}
 ```
 
-**Emulator:**
+### FLIP-338 Actions
 
-```typescript
-accessNodeUrl: "http://localhost:8888",
-discoveryWallet: "http://localhost:8701/fcl/authn",
-discoveryAuthnEndpoint: "http://localhost:8701/fcl/authn",
-flowNetwork: "emulator",
+Reusable onchain building blocks that work across different workflows.
+
+```cadence
+access(all) contract RecurringPayment {
+  access(all) struct ActionData {
+    access(all) let recipient: Address
+    access(all) let amount: UFix64
+  }
+
+  access(all) fun execute(data: ActionData): Bool {
+    // Execute payment
+  }
+}
 ```
 
-## Running on Flow Emulator
+---
 
-The Flow Emulator allows you to run a local Flow blockchain for development and testing. The Connect button works seamlessly with the emulator's dev wallet.
+## 🎯 Target Bounties
 
-### Prerequisites
+FlowGPT is designed to win multiple Flow hackathon bounties:
 
-Install the Flow CLI ([full installation guide](https://developers.flow.com/build/tools/flow-cli/install)):
+| Bounty                 | Prize        | Why We'll Win                      |
+| ---------------------- | ------------ | ---------------------------------- |
+| **Best Killer App**    | $8,000       | Consumer-friendly AI interface     |
+| **Best Forte Actions** | $6,000       | 5 FLIP-338 actions + Scheduled Txs |
+| **Vibe Coded**         | $1,000       | Heavy AI usage throughout          |
+| **Total Target**       | **$15,000+** | Multiple bounty overlap            |
 
-```bash
-# macOS (Homebrew - recommended)
-brew install flow-cli
+---
 
-# macOS/Linux (pre-built binary)
-sudo sh -ci "$(curl -fsSL https://raw.githubusercontent.com/onflow/flow-cli/master/install.sh)"
+## 🚦 Getting Started Guide
 
-# Windows (PowerShell)
-iex "& { $(irm 'https://raw.githubusercontent.com/onflow/flow-cli/master/install.ps1') }"
-```
+### For Users
 
-Verify installation:
+1. **Connect Wallet**
 
-```bash
-flow version
-```
+   - Click "Connect Wallet" in top-right
+   - Approve connection
 
-### Project Setup for Emulator
+2. **Start Chatting**
 
-This project has been initialized with `flow init`, which created the necessary Cadence development environment:
+   - Describe what you want to automate
+   - FlowGPT will ask clarifying questions
+   - Confirm the workflow
 
-```bash
-cadence/
-├── contracts/
-│   └── Counter.cdc              # Example smart contract
-├── scripts/
-│   └── GetCounter.cdc           # Script to read contract state
-├── transactions/
-│   └── IncrementCounter.cdc     # Transaction to modify state
-└── tests/
-    └── Counter_test.cdc         # Contract tests
+3. **Deploy & Enjoy**
+   - Click "Deploy Workflow"
+   - Sign the transaction
+   - Your automation is live!
 
-flow.json                        # Flow configuration file
-emulator-account.pkey            # Emulator account private key
-```
+### For Developers
 
-### Starting the Emulator
-
-**IMPORTANT**: You must start BOTH the Flow Emulator AND the Dev Wallet before trying to connect your wallet in the application.
-
-1. **Start the Flow Emulator (Terminal 1):**
+1. **Clone Repository**
 
    ```bash
-   flow emulator start
+   git clone https://github.com/yourusername/flowgpt.git
+   cd flowgpt
    ```
 
-   This starts the Flow Emulator on `http://localhost:8888`. Keep this terminal window open.
-
-2. **Start the Dev Wallet (Terminal 2):**
-
-   Open a **new terminal** and run:
+2. **Install Dependencies**
 
    ```bash
-   flow dev-wallet
+   npm install
    ```
 
-   This starts the Dev Wallet on `http://localhost:8701`. Keep this terminal window open as well.
+3. **Configure Environment**
 
-3. **Configure FlowProvider for Emulator**
-
-   The `src/components/flow-provider-wrapper.tsx` is already configured for the emulator with the `flowJson` prop:
-
-   ```typescript
-   import flowJSON from "../../flow.json";
-
-   export function FlowProviderWrapper({ children }: FlowProviderWrapperProps) {
-     return (
-       <FlowProvider
-         config={{
-           // Emulator configuration
-           accessNodeUrl: "http://localhost:8888",
-           discoveryWallet: "http://localhost:8701/fcl/authn",
-           flowNetwork: "emulator",
-
-           // App metadata
-           appDetailTitle: "Flow React SDK Starter",
-           appDetailUrl:
-             typeof window !== "undefined" ? window.location.origin : "",
-           appDetailIcon: "https://avatars.githubusercontent.com/u/62387156?v=4",
-           appDetailDescription:
-             "A Next.js starter template for Flow blockchain applications",
-
-           // Optional configuration
-           computeLimit: 1000,
-         }}
-         flowJson={flowJSON}
-       >
-         {children}
-       </FlowProvider>
-     );
-   }
+   ```bash
+   cp .env.example .env
+   # Add your GROQ_API_KEY
    ```
 
-   The `flowJson` prop automatically loads contract addresses and account configuration from `flow.json`, making it easier to work with deployed contracts on the emulator.
-
-4. **Start the NextJS Development Server (Terminal 3):**
-
-   Open another terminal and run:
+4. **Run Locally**
 
    ```bash
    npm run dev
    ```
 
-5. **Connect with Dev Wallet:**
+5. **Deploy Smart Contracts** (Optional)
+   ```bash
+   flow deploy
+   ```
 
-   Click the "Connect Wallet" button - it will open the Flow Dev Wallet UI at `http://localhost:8701`. The dev wallet comes with pre-funded test accounts ready to use.
+---
 
-## Tutorial Examples
+## 🤝 Contributing
 
-The starter includes interactive tutorial components that demonstrate core Flow SDK features:
+FlowGPT is built for the Flow hackathon! Contributions welcome:
 
-### 1. Wallet Connection
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-```typescript
-import { Connect } from "@onflow/react-sdk";
+---
 
-// Official Connect component with wallet discovery
-<Connect />
-```
+## 📝 License
 
-Get [Flow Wallet](https://wallet.flow.com) to get started.
+MIT License - feel free to use this code!
 
-### 2. Query Balance (useFlowQuery)
+---
 
-```typescript
-import { useFlowCurrentUser, useFlowQuery } from "@onflow/react-sdk";
+## 🙏 Acknowledgments
 
-const { user } = useFlowCurrentUser();
-const { data: balance, isLoading, error, refetch } = useFlowQuery({
-  cadence: FLOW_BALANCE_SCRIPT,
-  args: (arg, t) => [arg(user?.addr || "", t.Address)],
-});
-```
+- **Flow Foundation** - For building the best blockchain platform
+- **Groq** - For blazing-fast AI inference
+- **Shadcn** - For beautiful UI components
+- **The Flow Community** - For inspiration and support
 
-The `useFlowQuery` hook executes Cadence scripts to read blockchain data.
+---
 
-### 3. Send Transaction (useFlowMutate)
+## 📞 Contact
 
-```typescript
-import { useFlowMutate } from "@onflow/react-sdk";
+- **Website**: [flowgpt.app](https://flowgpt.app)
+- **Twitter**: [@FlowGPT](https://twitter.com/flowgpt)
+- **Discord**: [Flow Ecosystem](https://discord.gg/flow)
 
-const { mutate, isPending, isSuccess, error } = useFlowMutate();
+---
 
-const handleSend = () => {
-  const formattedAmount = parseFloat(amount).toFixed(8);
-  mutate({
-    cadence: TRANSFER_FLOW_TRANSACTION,
-    args: (arg, t) => [arg(formattedAmount, t.UFix64), arg(recipient, t.Address)],
-  });
-};
-```
+**Built with ❤️ for the Flow hackathon**
 
-The `useFlowMutate` hook executes Cadence transactions that modify blockchain state.
-
-## Resources
-
-- [Flow Wallet](https://wallet.flow.com) - Official Flow wallet
-- [Flow Testnet Faucet](https://faucet.flow.com/fund-account) - Get free testnet tokens
-- [Flow React SDK Documentation](https://react.flow.com) - Complete SDK reference
-- [Flow Developer Portal](https://developers.flow.com) - Developer resources
-- [Cadence Documentation](https://cadence-lang.org) - Smart contract language
-- [FCL GitHub](https://github.com/onflow/fcl-js) - Flow Client Library
-- [FlowScan](https://testnet.flowscan.io) - Testnet block explorer
+_"Automate your crypto workflows through conversation"_ 💬⚡

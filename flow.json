@@ -1,7 +1,31 @@
 {
 	"contracts": {
-		"Counter": {
-			"source": "cadence/contracts/Counter.cdc",
+		"BatchTransfer": {
+			"source": "cadence/contracts/BatchTransfer.cdc",
+			"aliases": {
+				"testing": "0000000000000007"
+			}
+		},
+		"RecurringPayment": {
+			"source": "cadence/contracts/RecurringPayment.cdc",
+			"aliases": {
+				"testing": "0000000000000007"
+			}
+		},
+		"StakingClaim": {
+			"source": "cadence/contracts/StakingClaim.cdc",
+			"aliases": {
+				"testing": "0000000000000007"
+			}
+		},
+		"TokenSwap": {
+			"source": "cadence/contracts/TokenSwap.cdc",
+			"aliases": {
+				"testing": "0000000000000007"
+			}
+		},
+		"WorkflowRegistry": {
+			"source": "cadence/contracts/WorkflowRegistry.cdc",
 			"aliases": {
 				"testing": "0000000000000007"
 			}
@@ -20,6 +44,37 @@
 				"type": "file",
 				"location": "emulator-account.pkey"
 			}
+		},
+		"flow-gpt": {
+			"address": "179b6b1cb6755e31",
+			"key": "3e236b53df07567252989c2649b1f2e14b7df3bf5945c42ab7dece14884ab67e"
+		},
+		"testnet-account": {
+			"address": "4051c307e9175648",
+			"key": {
+				"type": "file",
+				"location": "testnet-account.pkey"
+			}
+		}
+	},
+	"deployments": {
+		"emulator": {
+			"emulator-account": [
+				"StakingClaim",
+				"TokenSwap",
+				"WorkflowRegistry",
+				"BatchTransfer",
+				"RecurringPayment"
+			]
+		},
+		"testnet": {
+			"testnet-account": [
+				"WorkflowRegistry",
+				"BatchTransfer",
+				"RecurringPayment",
+				"StakingClaim",
+				"TokenSwap"
+			]
 		}
 	}
 }

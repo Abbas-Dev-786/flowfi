@@ -1,7 +1,7 @@
 {
-  "name": "flow-react-sdk-starter",
+  "name": "flowgpt",
   "version": "1.0.0",
-  "description": "A minimal Next.js starter template to build on Flow",
+  "description": "FlowGPT - The ChatGPT for Flow blockchain automation",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
