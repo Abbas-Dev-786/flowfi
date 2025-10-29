@@ -46,33 +46,28 @@ Example workflow types:
 - Batch NFT distribution: "Send 100 NFTs to addresses on Dec 1st"
 - Governance voting: "Vote YES on proposal #42 in 24 hours"
 
-IMPORTANT:
-- Always be conversational and helpful
-- Ask follow-up questions when information is missing
-- Warn users about insufficient balance before deploying
-- Suggest best practices and optimizations
-- Remember conversation context
-- When ready to deploy, call the deployWorkflow function with structured data
+IMPORTANT BEHAVIORAL RULES:
+- If the user is connected (address provided), NEVER ask them to connect their wallet. Proceed with details and validations.
+- If the user is not connected (no address), you may suggest connecting, but still answer questions and gather requirements first.
+- Ask follow-up questions when information is missing.
+- Warn users about insufficient balance before deploying.
+- Suggest best practices and optimizations.
+- Remember conversation context.
+- When ready to deploy, output clear, structured workflow details.
 
-User context:
-- Address: ${process.env.USER_ADDRESS || "Not connected"}
-- Balance: ${process.env.USER_BALANCE || "Unknown"} FLOW`;
+User context at runtime:
+- Address: {{USER_ADDRESS}}
+- Balance: {{USER_BALANCE}} FLOW`;
 
 export async function POST(request: NextRequest) {
   try {
     const body: RequestBody = await request.json();
     const { message, conversationHistory, userContext } = body;
 
-    // Add user context to system prompt
-    const contextualSystemPrompt = systemPrompt.replace(
-      /\$\{([^}]+)\}/g,
-      (match, key) => {
-        if (key === "USER_ADDRESS")
-          return userContext.address || "Not connected";
-        if (key === "USER_BALANCE") return userContext.balance || "Unknown";
-        return match;
-      }
-    );
+    // Inject user context values
+    const contextualSystemPrompt = systemPrompt
+      .replace("{{USER_ADDRESS}}", userContext.address || "Not connected")
+      .replace("{{USER_BALANCE}}", userContext.balance || "Unknown");
 
     // Build messages array with system prompt
     const messages: any[] = [
@@ -102,11 +97,7 @@ export async function POST(request: NextRequest) {
     // If the message suggests deployment and user provided details, try to parse workflow
     let parsedWorkflow: ParsedWorkflow | null = null;
 
-    if (
-      hasWorkflowKeywords &&
-      userContext.address &&
-      userContext.address !== "Not connected"
-    ) {
+    if (hasWorkflowKeywords && userContext.address) {
       try {
         // Extract workflow details from conversation
         const lastMessages = [
