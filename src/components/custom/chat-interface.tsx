@@ -27,7 +27,16 @@ export function ChatInterface({
   onWorkflowDeploy,
   isConnected = false,
 }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "welcome",
+      role: "assistant",
+      content: isConnected
+        ? "👋 Welcome to FlowGPT! I'm your AI assistant for Flow blockchain automation.\n\nWhat would you like to automate? Here are some ideas:\n\n• Pay my team 100 FLOW every Friday\n• Buy 50 FLOW worth of tokens weekly\n• Claim my staking rewards monthly\n• Send 100 NFTs to whitelist on Dec 1st"
+        : "👋 Welcome to FlowGPT! Please connect your wallet to get started.\n\nClick the 'Connect Wallet' button in the top-right corner.",
+      timestamp: new Date(),
+    },
+  ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -37,20 +46,6 @@ export function ChatInterface({
   const [pendingWorkflow, setPendingWorkflow] = useState<ParsedWorkflow | null>(
     null
   );
-
-  // Welcome message reacts to connection changes
-  useEffect(() => {
-    setMessages([
-      {
-        id: "welcome",
-        role: "assistant",
-        content: isConnected
-          ? "👋 Welcome to FlowGPT! I'm your AI assistant for Flow blockchain automation.\n\nWhat would you like to automate? Here are some ideas:\n\n• Pay my team 100 FLOW every Friday\n• Buy 50 FLOW worth of tokens weekly\n• Claim my staking rewards monthly\n• Send 100 NFTs to whitelist on Dec 1st"
-          : "👋 Welcome to FlowGPT! You can start describing your automation. To deploy on-chain, connect your wallet using the button above.",
-        timestamp: new Date(),
-      },
-    ]);
-  }, [isConnected]);
 
   // Initialize speech recognition
   useEffect(() => {

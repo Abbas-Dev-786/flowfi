@@ -152,14 +152,14 @@ export function WorkflowCard({
             {workflow.executionCount}
           </span>
         </div>
-        {workflow.lastExecution && (
+        {/* {workflow.lastExecution && (
           <div className="flex items-center justify-between text-gray-600">
             <span>Last run:</span>
             <span className="font-medium text-black">
               {formatDate(workflow.lastExecution)}
             </span>
           </div>
-        )}
+        )} */}
 
         {workflow.nextExecution && (
           <div className="flex items-center justify-between text-gray-600">

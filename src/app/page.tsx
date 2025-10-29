@@ -4,11 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ChatInterface } from "@/components/custom/chat-interface";
 import { WorkflowCard } from "@/components/custom/workflow-card";
+import { ActionManager } from "@/components/custom/action-manager";
 import { Button } from "@/components/ui/button";
 import { ParsedWorkflow } from "@/lib/groq/client";
 import { WorkflowDefinition } from "@/types/workflow.types";
 import { FlowWorkflowManager } from "@/lib/flow/workflow";
-import { Loader2, MessageSquare } from "lucide-react";
+import { Loader2, MessageSquare, Zap } from "lucide-react";
 import { useScheduledWorkflows } from "@/lib/flow/use-scheduled-workflows";
 import { Connect, useFlowCurrentUser } from "@onflow/react-sdk";
 import { toast } from "react-hot-toast";
@@ -17,7 +18,9 @@ export default function DashboardPage() {
   const router = useRouter();
   const { user } = useFlowCurrentUser();
 
-  const [viewMode, setViewMode] = useState<"chat" | "workflows">("chat");
+  const [viewMode, setViewMode] = useState<"chat" | "workflows" | "actions">(
+    "chat"
+  );
   const {
     workflows,
     load: loadUserWorkflows,
@@ -161,6 +164,14 @@ export default function DashboardPage() {
                 Chat
               </Button>
               <Button
+                variant={viewMode === "actions" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("actions")}
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Actions
+              </Button>
+              <Button
                 variant={viewMode === "workflows" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("workflows")}
@@ -180,6 +191,15 @@ export default function DashboardPage() {
               user={user}
               onWorkflowDeploy={handleWorkflowDeploy}
               isConnected={user?.loggedIn || false}
+            />
+          </div>
+        ) : viewMode === "actions" ? (
+          <div className="max-w-6xl mx-auto">
+            <ActionManager
+              onActionCreated={(txId, actionType) => {
+                toast.success(`${actionType} created! Refreshing workflows...`);
+                loadUserWorkflows();
+              }}
             />
           </div>
         ) : (
