@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { parseWorkflowPrompt, ParsedWorkflow } from "@/lib/groq/client";
+import { CadenceGenerator } from "@/lib/cadence/generator"; // <-- IMPORT THE GENERATOR
+import { WorkflowDefinition } from "@/types/workflow.types";
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY!,
@@ -21,39 +23,25 @@ interface RequestBody {
   };
 }
 
+// This prompt is for the CHATBOT persona
 const systemPrompt = `You are FlowGPT, an AI assistant for the Flow blockchain. You help users create and manage automated workflows through natural conversation.
 
 Your personality:
-- Conversational and friendly like ChatGPT
-- Proactive in asking clarifying questions
-- Context-aware of user's wallet and balance
-- Suggest optimizations and warn about risks
-- Guide users step-by-step to create workflows
+- Conversational and friendly.
+- Proactive in asking clarifying questions.
+- Context-aware of user's wallet and balance.
+- Guide users step-by-step.
 
-Your capabilities:
-1. Understand natural language workflow requests
-2. Ask clarifying questions when details are missing
-3. Parse workflow requirements into structured data
-4. Check user's balance and warn if insufficient
-5. Suggest optimizations (gas savings, timing, etc.)
-6. Deploy workflows to Flow blockchain
+Your goal is to gather all necessary information to define a workflow.
+- For payments: "What amount?", "Who is the recipient (address)?", "How often (daily, weekly, monthly)?"
+- Acknowledge the user's context: "I see you're connected with address {{USER_ADDRESS}}."
+- When you have all details, confirm with the user. Example: "Great! I'm ready to set up a weekly payment of 100 FLOW to 0x123. Does that look correct?"
 
-Example workflow types:
-- Recurring payments: "Pay 100 FLOW monthly to team"
-- Scheduled transfers: "Send 50 FLOW every Friday at 3pm"
-- DCA: "Buy 20 FLOW worth of tokens weekly"
-- Staking: "Claim and compound rewards monthly"
-- Batch NFT distribution: "Send 100 NFTs to addresses on Dec 1st"
-- Governance voting: "Vote YES on proposal #42 in 24 hours"
-
-IMPORTANT BEHAVIORAL RULES:
-- If the user is connected (address provided), NEVER ask them to connect their wallet. Proceed with details and validations.
-- If the user is not connected (no address), you may suggest connecting, but still answer questions and gather requirements first.
-- Ask follow-up questions when information is missing.
-- Warn users about insufficient balance before deploying.
-- Suggest best practices and optimizations.
-- Remember conversation context.
-- When ready to deploy, output clear, structured workflow details.
+IMPORTANT:
+- DO NOT output JSON.
+- DO NOT generate Cadence code.
+- Your goal is to have a natural conversation to gather requirements.
+- The final confirmation message from you should summarize the user's request clearly.
 
 User context at runtime:
 - Address: {{USER_ADDRESS}}
@@ -64,59 +52,80 @@ export async function POST(request: NextRequest) {
     const body: RequestBody = await request.json();
     const { message, conversationHistory, userContext } = body;
 
-    // Inject user context values
     const contextualSystemPrompt = systemPrompt
       .replace("{{USER_ADDRESS}}", userContext.address || "Not connected")
       .replace("{{USER_BALANCE}}", userContext.balance || "Unknown");
 
-    // Build messages array with system prompt
     const messages: any[] = [
       { role: "system", content: contextualSystemPrompt },
       ...conversationHistory,
       { role: "user", content: message },
     ];
 
+    // 1. Get the conversational response from the AI
     const completion = await groq.chat.completions.create({
       messages,
-      model: "llama-3.3-70b-versatile",
+      model: "llama-3.1-8b-instant", // Use a fast model for chat
       temperature: 0.7,
       max_tokens: 1500,
     });
 
     const assistantMessage = completion.choices[0].message.content || "";
 
-    // Check if the assistant suggests deploying a workflow
-    // Look for keywords that indicate workflow deployment intent
-    const lowerMessage = assistantMessage.toLowerCase();
+    // 2. Check if the AI's response or user's message contains intent to create
+    const lowerMessage =
+      assistantMessage.toLowerCase() + " " + message.toLowerCase();
     const hasWorkflowKeywords =
       lowerMessage.includes("deploy") ||
       lowerMessage.includes("set up") ||
       lowerMessage.includes("create") ||
-      lowerMessage.includes("schedule");
+      lowerMessage.includes("schedule") ||
+      lowerMessage.includes("confirm") ||
+      lowerMessage.includes("looks correct");
 
-    // If the message suggests deployment and user provided details, try to parse workflow
     let parsedWorkflow: ParsedWorkflow | null = null;
+    let transactionCadence: string | null = null;
+    let generationError: string | null = null;
 
     if (hasWorkflowKeywords && userContext.address) {
       try {
-        // Extract workflow details from conversation
-        const lastMessages = [
-          ...conversationHistory,
+        // 3. If intent exists, call the PARSER AI
+        const combinedText = [
+          ...conversationHistory.slice(-4), // Look at recent history
           { role: "user" as const, content: message },
-        ];
-        const combinedText = lastMessages.map((m) => m.content).join(" ");
+        ]
+          .map((m) => m.content)
+          .join(" \n ");
 
-        // Try to parse the workflow
         parsedWorkflow = await parseWorkflowPrompt(combinedText);
-        console.log("Parsed workflow:", parsedWorkflow);
+
+        // 4. If parsing is successful, GENERATE CADENCE
+        if (parsedWorkflow && !parsedWorkflow.requiresInput?.length) {
+          try {
+            // This cast is necessary because ParsedWorkflow and WorkflowDefinition
+            // are structurally similar but not identical.
+            transactionCadence = CadenceGenerator.generateWorkflowTransaction(
+              parsedWorkflow as any
+            );
+          } catch (genError) {
+            console.error("Cadence generation error:", genError);
+            generationError =
+              genError instanceof Error
+                ? genError.message
+                : "Failed to generate Cadence";
+          }
+        }
       } catch (error) {
-        console.error("Failed to parse workflow:", error);
+        console.error("Failed to parse or generate workflow:", error);
       }
     }
 
+    // 5. Return everything to the frontend
     return NextResponse.json({
       message: assistantMessage,
       workflow: parsedWorkflow,
+      cadence: transactionCadence,
+      error: generationError,
     });
   } catch (error) {
     console.error("Chat API error:", error);
@@ -127,11 +136,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-// Parse workflow intent from AI response
-function parseWorkflowIntent(message: string) {
-  // This is a simple parser - you might want to make the AI return structured data
-  // or use a more sophisticated parsing approach
-  return null;
 }

@@ -1,11 +1,12 @@
-// types/workflow.types.ts
+// src/types/workflow.types.ts
 
 export type WorkflowType =
-  | "SCHEDULED_TRANSFER" // Priority 1
-  | "RECURRING_PAYMENT" // Priority 2
-  | "BALANCE_MONITOR" // Priority 3
-  | "NFT_AUTO_MINT" // Priority 4
-  | "EVENT_TRIGGER"; // Priority 5
+  | "ONE_TIME_TRANSFER" // <-- ADD THIS
+  | "SCHEDULED_TRANSFER"
+  | "RECURRING_PAYMENT"
+  | "BALANCE_MONITOR"
+  | "NFT_AUTO_MINT"
+  | "EVENT_TRIGGER";
 
 export interface WorkflowDefinition {
   id: string;
@@ -24,7 +25,7 @@ export interface TriggerConfig {
   type: "time" | "event" | "condition";
 
   // Time-based
-  schedule?: "once" | "daily" | "weekly" | "monthly";
+  schedule?: "once" | "daily" | "weekly" | "monthly" | "immediate"; // <-- ADD 'immediate'
   executeAt?: string; // ISO timestamp or cron-like
 
   // Event-based
