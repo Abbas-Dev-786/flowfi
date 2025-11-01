@@ -227,7 +227,10 @@ transaction(
           arg(workflow.creator, t.Address),
           arg(workflow.type, t.String),
           arg(actionContract, t.String),
-          arg(metadata, t.Dictionary({ key: t.String, value: t.String })),
+          arg(
+            { key: metadata.creator, value: metadata.createdAt },
+            t.Dictionary({ key: t.String, value: t.String })
+          ),
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -461,6 +464,7 @@ access(all) fun main(creator: Address): [{String: AnyStruct}] {
       BALANCE_MONITOR: 1.5,
       NFT_AUTO_MINT: 2,
       EVENT_TRIGGER: 2.5,
+      ONE_TIME_TRANSFER: 1,
     };
 
     const multiplier = complexityMultiplier[workflow.type] || 1;
